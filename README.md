@@ -1,9 +1,9 @@
 ![Image alt](https://github.com/S-Sushka/ESP8266_CLOCKS/blob/main/CLOCKS.jpg)
 
-## WiFi clocks based ESP8266
-
 > [!NOTE]
 > This project use library NTPClient by Fabrice Weinberg: https://github.com/FWeinb
+
+# WiFi clocks based ESP8266
 ## How to use?
 ### 1) Open ESP8266_CLOCKS_SKETCH.ino
 ### 2) Add "ESP8266_SEGMENT_LED_SSD1306_SW_I2C" library
