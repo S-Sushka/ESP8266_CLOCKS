@@ -4,7 +4,7 @@
 
 // WiFi & NTP trash
 #include <EEPROM.h>
-#include <NTPClient.h>
+#include <NTPClient.h> // https://github.com/FWeinb
 #include <ESP8266WiFi.h> 
 #include <WiFiUdp.h> 
 
