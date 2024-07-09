@@ -2,3 +2,4 @@
 
 ## WiFi clocks based ESP8266
 ### This project use library NTPClient by Fabrice Weinberg: https://github.com/FWeinb
+### How to use
