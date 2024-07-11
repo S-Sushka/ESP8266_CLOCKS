@@ -1,54 +1,46 @@
-// *** If ESP8266 can`t find WiFi, you can edit SSID & pass using serial port: in serial monitor enter new SSID, press "Enter", and enter new pass. ESP8266 remember new data
-
 #include <ESP8266_SEGMENT_LED_SSD1306_SW_I2C.h>
 
 // WiFi & NTP trash
-#include <EEPROM.h>
 #include <NTPClient.h> // https://github.com/FWeinb
 #include <ESP8266WiFi.h> 
 #include <WiFiUdp.h> 
 
-
-struct WIFI_DATA 
-{
-  char writeBuffer_SSID[256] = "";
-  char writeBuffer_PASSWORD[256] = "";
-};
-WIFI_DATA DATA_BUFFER;
-
-String SSID_BUFFER;
-String PASSWORD_BUFFER;
-bool SSID_READ = false;
-bool NEW_WIFI_DATA_AVAILABLE = false;
-
-
-char ssid[256]     = "";
-char password[256] = "";
-bool badWiFi = false;
+#define SSID_BUFFER "TP-Link_03EC"
+#define PASSWORD_BUFFER "92261754"
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "1.ru.pool.ntp.org", 10800,60000);
 
+bool badWiFi = false;
+int WiFiAttempts = 0;
+const int WiFiAttemps_MAX = 30;
+int WiFi_animation_dots = 0;
 
 SEGMENT_SSD1306 SEG_1000(2, 0);
 SEGMENT_SSD1306 SEG_0100(4, 5);
 SEGMENT_SSD1306 SEG_0010(14, 12);
 SEGMENT_SSD1306 SEG_0001(-1, -1);
+void show_FAIL() {
+  SEG_1000.show_F();
+  SEG_0100.show_A();
+  SEG_0010.show_I();
+  SEG_0001.show_L(); }
 
 
-int WiFiAttempts = 0;
-int WiFi_animation_dots = 0;
+void setup() 
+{  
+  SEG_1000.begin(); 
+  SEG_0100.begin();    
+  SEG_0010.begin();  
 
-void WiFi_tryConnect() 
-{
-  EEPROM.get(0, DATA_BUFFER);  
-  Serial.print("Current SSID: ");  
-  Serial.println(DATA_BUFFER.writeBuffer_SSID);  
-  Serial.print("Current PASSWORD: ");  
-  Serial.println(DATA_BUFFER.writeBuffer_PASSWORD);
-  
-  WiFi.begin(DATA_BUFFER.writeBuffer_SSID, DATA_BUFFER.writeBuffer_PASSWORD);
-  while ( WiFi.status() != WL_CONNECTED && WiFiAttempts < 20) // WiFiAttemps >= 20 - bad WiFi. Use RTC
+  SEG_0001.setSDA(3);
+  SEG_0001.setSCL(1);
+  SEG_0001.begin();  
+
+
+  // >>> WiFi Try Connect        
+  WiFi.begin(SSID_BUFFER, PASSWORD_BUFFER);
+  while ( WiFi.status() != WL_CONNECTED && WiFiAttempts < WiFiAttemps_MAX) // WiFiAttemps >= WiFiAttemps_MAX - bad WiFi :(
   {    
     SEG_1000.show_WIFISearch(WiFi_animation_dots);
     SEG_0100.show_WIFISearch(WiFi_animation_dots);
@@ -63,40 +55,17 @@ void WiFi_tryConnect()
     delay(250);
   }    
 
-  if (WiFiAttempts >= 20)
+  if (WiFiAttempts >= WiFiAttemps_MAX)
   {
     badWiFi = true;
-    SEG_1000.show_F();
-    SEG_0100.show_A();
-    SEG_0010.show_I();
-    SEG_0001.show_L();
+    show_FAIL();
   }    
   else 
   {
     timeClient.begin();
     timeClient.update();     
-  }   
+  }  
 }
-
-void setup() 
-{  
-  Serial.begin(115200); 
-  EEPROM.begin(512);
-
-  Serial.println("");
-  Serial.println(">>> START SERIAL <<<");  
-  
-  SEG_1000.begin(); 
-  SEG_0100.begin();    
-  SEG_0010.begin();  
-
-  SEG_0001.setSDA(3);
-  SEG_0001.setSCL(1);
-  SEG_0001.begin();  
-
-  WiFi_tryConnect();        
-}
-
 
 
 void updateTime(String timeVar) 
@@ -108,64 +77,17 @@ void updateTime(String timeVar)
 }
 int getDigit(char symbol) { return symbol-'0'; }
 
-bool sendMessage_badWifi = false;
 void loop() 
 {
   if (!badWiFi) 
   {
     updateTime(timeClient.getFormattedTime());
     delay(1000);
-  }
-  else 
-  {    
-    // READ NEW SSID & PASSWORD
-    if (!sendMessage_badWifi)
-    {
-      Serial.println("");
-      Serial.println("Bad WiFi! Enter new SSID and then enter new PASSWORD:");    
-      sendMessage_badWifi = true;
-    }
 
-    if (Serial.available()) 
+    if (WiFi.status() != WL_CONNECTED) 
     {
-      if (!SSID_READ) 
-      {
-        SSID_BUFFER = Serial.readString();
-        SSID_BUFFER.remove(SSID_BUFFER.length()-1);
-        SSID_READ = true;
-      }
-      else 
-      {
-        PASSWORD_BUFFER = Serial.readString();    
-        PASSWORD_BUFFER.remove(PASSWORD_BUFFER.length()-1);
-        Serial.println(""); 
-         
-        NEW_WIFI_DATA_AVAILABLE = true;
-        SSID_READ = false;            
-      }    
+      badWiFi = true;
+      show_FAIL(); 
     }    
-  }
-
-
-  if (NEW_WIFI_DATA_AVAILABLE) 
-  {
-    Serial.println("REWRTIE WIFI DATA...");
-      
-    SSID_BUFFER.toCharArray(DATA_BUFFER.writeBuffer_SSID, SSID_BUFFER.length()+1);
-    PASSWORD_BUFFER.toCharArray(DATA_BUFFER.writeBuffer_PASSWORD, PASSWORD_BUFFER.length()+1);
-    
-    EEPROM.put(0, DATA_BUFFER);  
-    EEPROM.commit();
-
-    EEPROM.get(0, DATA_BUFFER);  
-    Serial.println(DATA_BUFFER.writeBuffer_SSID);   
-    Serial.println(DATA_BUFFER.writeBuffer_PASSWORD);
-
-    badWiFi = false;
-    WiFiAttempts = 0;
-    WiFi_tryConnect();
-
-   
-    NEW_WIFI_DATA_AVAILABLE = false;      
-  }  
+  } 
 }
