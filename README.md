@@ -12,7 +12,5 @@ Sketch > Include Library > Add .ZIP Library, then select `ESP8266_SEGMENT_LED_SS
 Sketch > Include Library > Add .ZIP Library, then select `NTPClient_v321.zip`  
 OR  
 Sketch > Include Library > Manage libraries. Search `NTPClient` by `Fabrice Weinberg`
-#### 4) Upload sketch to ESP8266!
-
-## Troubleshooting
-#### If clocks shows FAIL message, you need to change WiFi SSID & password. Open the serial monitor (Default baud rate: 115200), enter a new SSID, then enter a new password, reset the microcontroller
+#### 4) Edit `SSID_BUFFER` & `PASSWORD_BUFFER` according to your SSID & password. (SSID - is name of WiFi network)
+#### 5) Upload sketch to ESP8266!
