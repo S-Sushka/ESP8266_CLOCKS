@@ -4,7 +4,7 @@
 > [!NOTE]
 > This project use library NTPClient by Fabrice Weinberg: https://github.com/FWeinb
 
-## How to use?
+## HOW TO GET STARTED?
 #### 1) Open ESP8266_CLOCKS_SKETCH.ino
 #### 2) Add "ESP8266_SEGMENT_LED_SSD1306_SW_I2C" library
 Sketch > Include Library > Add .ZIP Library, then select `ESP8266_SEGMENT_LED_SSD1306_SW_I2C.zip`
