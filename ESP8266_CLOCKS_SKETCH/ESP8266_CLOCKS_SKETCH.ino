@@ -5,8 +5,8 @@
 #include <ESP8266WiFi.h> 
 #include <WiFiUdp.h> 
 
-#define SSID_BUFFER "TP-Link_03EC"
-#define PASSWORD_BUFFER "92261754"
+#define SSID_BUFFER ""
+#define PASSWORD_BUFFER ""
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "1.ru.pool.ntp.org", 10800,60000);
